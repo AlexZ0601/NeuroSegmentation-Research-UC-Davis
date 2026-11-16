@@ -15,6 +15,8 @@ extracts each neuron's fluorescence trace.
 | `per_video/video<N>/metrics.json` | per-video scores as JSON |
 | `ground_truth/` | traces and stats computed from the ground-truth ROIs |
 | `figures/` | mask overlays and trace plots for every video |
+| `setup_neuroseg3.sh`, `patches/` | clones upstream [NeuroSeg3](https://github.com/zimo-5kk/NeuroSeg3) at the pinned commit and applies the NumPy 2 fix |
+| `requirements.txt` | Python packages (unpinned) |
 
 The large per-video prediction arrays (`pred_masks.npy`, `pred_F_raw.npy`,
 `pred_dff.npy`, `neuroseg_video<N>.mat`, about 900 MB total) are not in git.
@@ -148,6 +150,7 @@ segmented well, so the loss is in **detection, not delineation**.
    uint8 and NumPy 2.0 (NEP 50) no longer upcasts `uint8_array * python_int`, so any
    image with >255 instances raises `OverflowError`. With ~100 neurons/image and
    mosaic stitching 4 together, this triggers constantly on dense data.
+   Fix: `patches/neuroseg3-numpy2-overflow.patch` (applied by `setup_neuroseg3.sh`).
 4. `torch.load` needs `weights_only=False` on PyTorch ≥ 2.6 (`harness/torch_compat.py`).
 
 ### 6. Provenance of the missing checkpoint
@@ -163,7 +166,14 @@ Neither supplied source contains a fine-tuned neuron model:
 
 ### 7. Reproducing
 
+The ABO videos and ROIs come from the Allen Brain Observatory (linked from the
+NeuroSeg3 README). Upstream code is not copied here since it has no license.
+
 ```bash
+pip install -r requirements.txt
+./setup_neuroseg3.sh            # clones NeuroSeg3 @ b5b5361 + applies the patch
+export NEUROSEG_REPO=$PWD/NeuroSeg3
+
 python harness/build_dataset.py --videos <dir> --rois <dir> --gt-traces <dir> \
     --out ds --split pool --ids 1 2 3 4 5 6 7 8 9 10 --win 500 --stride 250
 python harness/train_fold.py --pool ds/pool --work cv --fold 1 \

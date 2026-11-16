@@ -1,0 +1,13 @@
+diff --git a/ultralytics/data/utils.py b/ultralytics/data/utils.py
+index 5e736ae..359bc87 100644
+--- a/ultralytics/data/utils.py
++++ b/ultralytics/data/utils.py
+@@ -206,7 +206,7 @@ def polygons2masks_overlap(imgsz, segments, downsample_ratio=1):
+     index = np.argsort(-areas)
+     ms = np.array(ms)[index]
+     for i in range(len(segments)):
+-        mask = ms[i] * (i + 1)
++        mask = ms[i].astype(masks.dtype) * (i + 1)  # uint8 * 256 overflows under NumPy 2 (NEP 50)
+         masks = masks + mask
+         masks = np.clip(masks, a_min=0, a_max=i + 1)
+     return masks, index

@@ -1,0 +1,11 @@
+# Not pinned. Run on NumPy 2.x and PyTorch >= 2.6 (Apple MPS); the shims in
+# harness/torch_compat.py and patches/ exist because of those versions.
+numpy>=2.0
+scipy
+opencv-python
+tifffile
+matplotlib
+pyyaml
+torch>=2.6
+torchvision
+# plus whatever the vendored ultralytics in NeuroSeg3 imports (pandas, pillow, psutil, tqdm, ...)
